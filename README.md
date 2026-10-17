@@ -61,7 +61,7 @@ oh app reload elevate --update --wait --instance <instance>   # after pushes
 oh app logs elevate --instance <instance>
 ```
 
-The manifest consumes `github.com/imbue-openhost/health-data-service-spec` (shortname `health`). At least one provider app (e.g. `apple-health`) must be installed for data to appear.
+The manifest consumes `github.com/imbue-openhost/health-data-service-spec` (shortname `health`). At least one provider app (e.g. `apple-health`) must be installed for data to appear. Workout reads fan out to every running provider (e.g. `apple-health` + `oura`) and are merged, since a plain service call only reaches the default provider.
 
 ## Outstanding / come back to
 
