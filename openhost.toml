@@ -13,6 +13,8 @@ health_check = "/health"
 [resources]
 memory_mb = 256
 cpu_millicores = 200
+# The image build (npm ci + Angular prod build) needs far more than the 256 MB runtime footprint.
+build_memory_mb = 4096
 
 [data]
 # Durable store for the app's own data: settings, athlete, computed activities, and streams.
