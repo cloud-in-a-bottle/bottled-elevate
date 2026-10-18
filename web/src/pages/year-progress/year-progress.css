@@ -1,0 +1,138 @@
+.yp-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.yp-rolling input.yp-multiplier {
+  width: 70px;
+}
+.yp-picker {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.yp-picker-label {
+  flex: 0 0 48px;
+  padding-top: 5px;
+}
+.yp-chip {
+  cursor: pointer;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 12px;
+  background: transparent;
+}
+.yp-chip:hover {
+  background: var(--surface-hover);
+}
+.yp-chip.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.yp-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.yp-chip:not(.active) .yp-dot {
+  opacity: 0.4;
+}
+.yp-link {
+  border: none;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.yp-link:hover {
+  text-decoration: underline;
+}
+
+.yp-main {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 16px;
+  align-items: start;
+}
+.yp-main.expanded {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (max-width: 1200px) {
+  .yp-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .yp-expand {
+    display: none;
+  }
+}
+.yp-target {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.yp-table td,
+.yp-table th {
+  padding: 8px 10px;
+}
+.yp-table th {
+  cursor: help;
+}
+.yp-pos {
+  color: var(--success);
+}
+.yp-neg {
+  color: var(--danger);
+}
+
+.yp-summary {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 0;
+}
+.yp-summary dt {
+  color: var(--text-muted);
+}
+.yp-summary dd {
+  margin: 0;
+}
+
+.yp-presets td.yp-wrap {
+  white-space: normal;
+  min-width: 140px;
+}
+
+.yp-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+}
+.yp-overview-title {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.yp-help h3 {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.yp-help p {
+  margin: 0 0 6px;
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .yp-picker {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .yp-picker-label {
+    flex: none;
+    padding: 0;
+  }
+}

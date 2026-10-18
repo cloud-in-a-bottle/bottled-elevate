@@ -2,13 +2,12 @@
 **/dist
 **/.git
 **/coverage
-**/.angular
 .screenshots
 resources
 .venv
 **/__pycache__
 .pytest_cache
 .ruff_cache
-.mypy_cache
 local-data
 tests
+scripts

@@ -1,0 +1,357 @@
+/* Settings pages: athlete, zones, global settings. */
+
+.settings-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.recompute-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -6px 0 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.recompute-note .icon {
+  color: var(--info);
+}
+
+/* --- forms --- */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px 16px;
+}
+.about-grid {
+  margin-bottom: 14px;
+}
+.form-section + .form-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.since-section {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.athlete-form > .switch,
+.form-section > .switch {
+  margin-top: 12px;
+}
+.form-section h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.form-section h4 {
+  font-size: 13px;
+  margin: 16px 0 8px;
+  color: var(--text-muted);
+}
+.form-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 10px 0;
+}
+.field-error {
+  color: var(--danger);
+  font-size: 12px;
+}
+input.invalid {
+  border-color: var(--danger);
+}
+
+.input-with-unit {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.input-with-unit input {
+  width: 100%;
+  padding-right: 58px;
+}
+.input-with-unit .unit {
+  position: absolute;
+  right: 10px;
+  color: var(--text-faint);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.settings-hint {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.settings-hint summary {
+  cursor: pointer;
+  color: var(--link);
+  width: fit-content;
+}
+.settings-hint > div,
+.settings-hint > p {
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border-left: 2px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 var(--radius-small) var(--radius-small) 0;
+}
+.settings-hint > p + p {
+  margin-top: 0;
+}
+.about-periods {
+  margin-top: 14px;
+}
+
+.swim-calc {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.swim-method {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.swim-method.active {
+  border-color: var(--accent);
+}
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.radio input {
+  accent-color: var(--accent);
+}
+
+/* --- athlete page --- */
+
+.sports-field .row-wrap {
+  margin-top: 2px;
+}
+.chip-remove {
+  display: inline-flex;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  padding: 0;
+  cursor: pointer;
+}
+.chip-remove:hover {
+  color: var(--danger);
+}
+.sport-add {
+  height: 28px;
+  width: auto;
+}
+
+.io-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  background: var(--surface-raised);
+}
+.io-panel textarea,
+.zones-json {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.periods-table td.row-actions {
+  padding: 2px 6px;
+  text-align: right;
+}
+.icon-btn-spacer {
+  display: inline-block;
+  width: 34px;
+}
+
+/* --- zones page --- */
+
+.zones-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.zone-types {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+}
+.zone-type-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.zone-type-group-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-faint);
+  padding: 0 10px 2px;
+}
+.zone-types button {
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  padding: 7px 10px;
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+.zone-types button:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.zone-types button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.zone-type-select {
+  display: none;
+}
+
+.zones-card .card-header {
+  flex-wrap: wrap;
+}
+.step-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 4px;
+}
+.step-field input {
+  width: 72px;
+  height: 30px;
+}
+
+.zone-list {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.zone-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr 34px;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 6px;
+  border-radius: var(--radius-small);
+}
+.zone-row:not(.zone-head):hover {
+  background: var(--surface-hover);
+}
+.zone-row.invalid .zone-input {
+  border-color: var(--danger);
+}
+.zone-head {
+  padding-bottom: 0;
+}
+.zone-id {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.zone-bound {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.zone-input {
+  width: 110px;
+  flex: none;
+}
+.zone-custom {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.zones-save-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 800px) {
+  .zones-layout {
+    grid-template-columns: 1fr;
+  }
+  .zone-types {
+    display: none;
+  }
+  .zone-type-select {
+    display: block;
+    width: 100%;
+  }
+  .zone-row {
+    grid-template-columns: 32px 1fr 1fr 34px;
+    gap: 6px;
+  }
+  .zone-bound {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+  }
+  .zone-input {
+    width: 100%;
+  }
+}
+
+/* --- global settings --- */
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.card-header + .setting-row,
+.data-status + .setting-row {
+  border-top: none;
+}
+.setting-text {
+  flex: 1;
+  min-width: 0;
+}
+.setting-title {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.setting-control {
+  flex: none;
+}
+.data-status {
+  margin: -4px 0 4px;
+}
+@media (max-width: 600px) {
+  .setting-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

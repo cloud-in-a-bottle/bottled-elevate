@@ -1,57 +1,77 @@
 # bottled-elevate
 
-A fork of [Elevate](https://github.com/thomaschampagne/elevate) (fitness analytics) stripped down to run as a single-user web app on [Cloud in a Bottle](https://github.com/imbue-ai/Cloud in a Bottle). Instead of syncing from Strava or local files, it pulls workout data from the Cloud in a Bottle **health-data service** (provided by apps like `apple-health` / `oura`).
+A fork of [Elevate](https://github.com/thomaschampagne/elevate) (fitness analytics) rebuilt as a single-user web app for [Cloud in a Bottle](https://github.com/imbue-openhost/openhost). It pulls workouts from the Cloud in a Bottle **health-data service**, which apps like `apple-health` and `oura` provide, instead of syncing from Strava or local files.
+
+It has a Go backend and a SolidJS frontend. They replace the original Angular app and its Python proxy.
 
 ## Architecture
 
 ```
  health-data providers (apple-health, oura …)
-        │  service mesh
+        │  service mesh (fan-out to every running provider)
         ▼
- ┌─ elevate container ───────────────────────────────────┐
- │  backend/app.py  (Litestar)                            │
- │    • serves the static Angular build                   │
- │    • proxies /api/* → health-data service              │
- │      (injects OPENHOST_APP_TOKEN)                      │
- │                                                        │
- │  appcore  (Angular SPA, "web" build target)            │
- │    • WebSyncService → GET /api/workouts                │
- │    • maps spec.Workout → elevate Activity (+streams)   │
- │    • stores in browser IndexedDB                       │
- │    • views: activities, fitness-trend, year-progress,  │
- │      zones, athlete-settings, activity detail          │
- └────────────────────────────────────────────────────────┘
+ ┌─ elevate container ──────────────────────────────────────────┐
+ │  backend/ (Go)                                               │
+ │    • syncer: lists + fetches workouts, maps them to          │
+ │      activities + streams (GPX route, HR/power/cadence)      │
+ │    • compute: Elevate's ActivityComputer / StreamProcessor   │
+ │      (stats, zones, peaks, stress scores, GAP, est. power)   │
+ │    • sqlite: activities, raw streams, settings, UI prefs     │
+ │    • re-derives every activity when athlete settings or      │
+ │      zones change                                            │
+ │    • serves /api/* and the static frontend                   │
+ │                                                              │
+ │  web/ (SolidJS + Vite)                                       │
+ │    • activities, activity detail, compare, fitness trend,    │
+ │      year progressions, athlete / zones / global settings    │
+ │    • Plotly charts, Leaflet maps (no token needed)           │
+ └──────────────────────────────────────────────────────────────┘
 ```
 
-The health-data service is the source of truth; the browser IndexedDB is a local working copy synced from it. Auth is handled by the Cloud in a Bottle router (the compute-space owner), so the app is single-user.
+The health-data service is the source of truth. The sqlite store is a derived copy that a sync rebuilds. Auth is handled by the Cloud in a Bottle router (the compute-space owner), so the app is single-user.
 
 ## Layout
 
 | Path | What |
 |------|------|
-| `appcore/` | the Angular app (`@elevate/shared` lives in `appcore/modules/shared`) |
-| `appcore/src/app/shared/.../web-*` | the web build target: sync, data-store, services, target/boot modules |
-| `appcore/src/app/shared/services/sync/impl/web-activity-mapper.ts` | spec.Workout → elevate Activity + (mock) streams |
-| `appcore/src/app/activity-detail/` | single-activity view (graph, map, peaks, time-in-zones) |
-| `backend/` | Litestar app: serves the build + proxies the health-data service |
-| `Dockerfile` | multi-stage: Node builds `appcore`, Python serves it |
-| `openhost.toml` | manifest; consumes `health-data-service-spec` |
+| `backend/cmd/elevate` | the server binary |
+| `backend/internal/compute` | stats engine: activity computer, stream processing, splits/peaks, laps, athlete snapshot resolution |
+| `backend/internal/mapper` | health-data `Workout` → activity + raw streams, and the single `Derive` step that (re)computes stats |
+| `backend/internal/syncer` | background sync (crash-safe, resumable, newest first) and recompute jobs |
+| `backend/internal/health` | health-data service client (provider discovery + fan-out) |
+| `backend/internal/store` | sqlite persistence; imports settings from the old Angular app's `records` table on first start |
+| `backend/internal/api` | HTTP API + static file serving |
+| `backend/cmd/devhealth`, `internal/devdata` | a mock router + provider with 18 months of synthetic workouts, for local dev and tests |
+| `web/src/lib` | API client, wire types, app state, formatting |
+| `web/src/components` | UI kit, Plotly and Leaflet wrappers |
+| `web/src/pages/*` | one directory per page |
+| `tests/` | OpenHost integration test (deploys the app next to a mock provider, drives it with Playwright) |
+
+## API
+
+| Method & path | What |
+|---|---|
+| `GET /api/status` | sync/recompute job state and progress, activity count, a revision that bumps on every change |
+| `POST /api/sync` `{mode}` | `fast` (recent 7-day window), `full` (import everything missing), `force` (wipe and re-import) |
+| `POST /api/sync/stop` | stop a running sync; the next one resumes where it stopped |
+| `GET /api/activities` | every activity, without zones/peaks/laps |
+| `GET /api/activities/{id}` | one activity with zones, peaks and auto-laps |
+| `GET /api/activities/{id}/streams` | display-ready streams (smoothed; grade, GAP, estimated power) |
+| `PATCH/DELETE /api/activities/{id}`, `POST …/recalculate` | edit name/type/notes, delete, recompute |
+| `GET/PUT/DELETE /api/athlete`, `/api/settings` | athlete settings periods; units + zones (saving re-derives all activities) |
+| `GET/PUT/DELETE /api/prefs/{key}` | small persisted UI documents (fitness trend config, year progress presets) |
 
 ## Develop
 
 ```bash
-# Build the web app (output: dist/app)
-cd appcore && npm ci && npm run build -- --configuration=web      # dev
-                        npm run build -- --configuration=web-prod  # AOT/minified
-
-# Tests
-node node_modules/jest/bin/jest.js
-
-# Run the backend against a build (serves SPA + proxies /api/*)
-cd backend && ELEVATE_STATIC_DIR=../dist/app uvicorn app:app --port 8080
+just setup          # npm ci for the frontend
+just build-web      # build web/dist
+just dev            # mock health service on :9090 + backend on :8080 serving web/dist
+just dev-web        # optional: Vite hot reload on :5173 (proxies /api to :8080)
+just test           # go test + tsc + vitest
 ```
 
-`/api/*` only works inside Cloud in a Bottle (it needs `OPENHOST_ROUTER_URL` + `OPENHOST_APP_TOKEN`); locally those routes 500, but the SPA still serves.
+Inside Cloud in a Bottle the backend needs `OPENHOST_ROUTER_URL`, `OPENHOST_APP_TOKEN` and `OPENHOST_SQLITE_MAIN`. `just dev` sets them up to point at the mock.
 
 ## Deploy on Cloud in a Bottle
 
@@ -61,19 +81,16 @@ oh app reload elevate --update --wait --instance <instance>   # after pushes
 oh app logs elevate --instance <instance>
 ```
 
-The manifest consumes `github.com/imbue-openhost/health-data-service-spec` (shortname `health`). At least one provider app (e.g. `apple-health`) must be installed for data to appear. Workout reads fan out to every running provider (e.g. `apple-health` + `oura`) and are merged, since a plain service call only reaches the default provider.
+The manifest consumes `github.com/imbue-openhost/health-data-service-spec` (shortname `health`). At least one provider app, such as `apple-health`, must be installed for data to appear. Workout reads go to every running provider and are merged, because a plain service call only reaches the default provider.
 
-## Outstanding / come back to
+When an existing install upgrades from the Angular version, its athlete settings, units/zones and year-progress presets carry over. Activities are rebuilt by the first sync, which the app starts on load.
 
-- **No power / cadence traces.** `web-activity-mapper.ts` wires the real HR trace and GPS route (`route_gpx`) into streams (heart rate, lat/lng, altitude, distance, speed, grade). Apple Health doesn't serve a per-sample power or cadence trace, so the power/cadence charts stay empty. If a provider gains them, add a `Power`/`Cadence` time-series to the spec and map them in `buildStreamsFromWorkout`.
-- **HR trace is per-minute.** Apple Health records workout HR ~1/min, so the HR line is coarser than a GPS track. The mapper interpolates HR onto the (finer) GPS timeline; with no route it's an HR-only timeline.
-- **Summary stat panels come from provider scalars**, not recomputed from streams (no compute worker on web). `WebActivityService.recalculateSingle` just re-persists; it could run `ActivityComputer` over the streams to fill in zones/peaks/stress scores.
-- **Best-splits is empty.** `WebActivityService.computeSplit` returns `[]` (was an Electron-main calc). Could be reimplemented client-side.
-- **Map needs a token.** `environment.mapBoxToken` is empty → the activity map disables itself (rest of the view still renders). Set a Mapbox token to enable tiles.
-- **`buildTarget` reuses `EXTENSION`.** A real `BuildTarget.WEB` was avoided because `@elevate/shared` switches on the enum in ~30 places. Formalizing it would allow web-specific settings/columns.
-- **Cosmetic naming.** A few generic browser shell components/services are still named `extension-*` (top-bar, window, menu-items, splash, update-bar, recalculate-bar, app-more-menu, load service, error handler). Functional; rename to neutral/`web-*` for clarity.
-- **No backup/restore on web** (the health-data service is the source of truth; re-sync rebuilds the local store).
-- **Not yet exercised in a real browser / deployed.** Builds and unit tests pass; a live sync + UI smoke test against an instance is still pending.
+## Notes
+
+- **HR trace is per-minute** on Apple Health, so it is interpolated onto the finer GPS timeline. Without a route, the densest sensor trace forms the timeline.
+- **Provider summaries win** over stream-derived values where both exist: distance, elevation gain, calories, duration, average speed/pace and average/max HR. Stress scores for workouts with no HR trace are estimated from average HR.
+- **Laps are auto-laps** (1 km or 1 mi), because providers don't send lap markers.
+- **Maps** use OpenStreetMap data with CARTO tiles, so no Mapbox token is needed.
 
 ## License
 
