@@ -1,0 +1,235 @@
+/* Activity view + shared bits reused by the compare view. */
+.activity-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.activity-title {
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.activity-title h1 {
+  font-size: 20px;
+  line-height: 34px;
+  overflow-wrap: anywhere;
+}
+.activity-meta .icon {
+  vertical-align: -2px;
+}
+.activity-notes {
+  white-space: pre-wrap;
+  color: var(--text-muted);
+  border-left: 2px solid var(--border);
+  padding-left: 8px;
+  margin-top: 4px;
+}
+.activity-actions {
+  justify-content: flex-end;
+}
+
+.activity-top {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+.activity-top.with-map {
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+}
+.activity-map {
+  min-height: 360px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+@media (max-width: 900px) {
+  .activity-top.with-map {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* stat tiles */
+.summary-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 4px;
+}
+.summary-tiles.compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: 100%;
+}
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px 6px;
+  border-radius: var(--radius-small);
+  min-width: 0;
+}
+.stat-tile.help {
+  cursor: help;
+}
+.stat-tile:hover {
+  background: var(--surface-hover);
+}
+.stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.stat-tile.large .stat-value {
+  font-size: 22px;
+}
+.stat-tile.missing .stat-value {
+  color: var(--text-faint);
+}
+.stat-unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.stat-name {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: 6px;
+  vertical-align: middle;
+  flex: none;
+}
+
+.stats-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.stats-group {
+  border-left: 3px solid var(--border);
+  padding-left: 14px;
+}
+.stats-group h3 {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 2px;
+}
+
+/* graph */
+.graph-toolbar {
+  margin-bottom: 8px;
+  gap: 8px;
+}
+.sensor-toggles {
+  gap: 6px;
+}
+.sensor-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.sensor-chip .dot {
+  margin: 0;
+}
+.sensor-chip.off {
+  color: var(--text-faint);
+  background: transparent;
+}
+.sensor-chip.off .dot {
+  opacity: 0.25;
+}
+.hint {
+  margin-top: 6px;
+  text-align: center;
+}
+.pad {
+  padding: 24px;
+  text-align: center;
+}
+
+/* chart grids (peaks, zones) */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  gap: 16px;
+}
+.chart-card {
+  min-width: 0;
+}
+.chart-title {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chart-title .dot {
+  margin: 0;
+}
+
+/* tables */
+table.data tr.clickable {
+  cursor: pointer;
+}
+table.data tr.selected td {
+  background: var(--accent-soft);
+}
+table.data tr.inactive td {
+  color: var(--text-faint);
+}
+.link-btn {
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--link);
+  padding: 2px 4px;
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+.link-btn:hover {
+  background: var(--accent-soft);
+}
+.link-btn.selected {
+  background: var(--accent-soft);
+  outline: 1px solid var(--accent);
+}
+.row-actions {
+  width: 1%;
+  text-align: right;
+}
+.row-actions .icon-btn {
+  width: 26px;
+  height: 26px;
+}
+.split-form {
+  margin-top: 12px;
+  gap: 16px;
+}
+.split-input {
+  width: 110px;
+}
+.selection-bar {
+  margin: -8px 0 10px;
+  gap: 8px;
+}
+.edit-form {
+  gap: 12px;
+}

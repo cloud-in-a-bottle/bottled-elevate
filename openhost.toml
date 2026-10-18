@@ -1,6 +1,6 @@
 [app]
 name = "elevate"
-version = "0.1.0"
+version = "0.2.0"
 description = "Elevate fitness analytics, fed by the Cloud in a Bottle health-data service"
 
 [runtime.container]
@@ -13,11 +13,11 @@ health_check = "/health"
 [resources]
 memory_mb = 256
 cpu_millicores = 200
-# The image build (npm ci + Angular prod build) needs far more than the 256 MB runtime footprint.
-build_memory_mb = 4096
+# The image build (npm ci + Vite bundle + Go compile) needs more than the runtime footprint.
+build_memory_mb = 2048
 
 [data]
-# Durable store for the app's own data: settings, athlete, computed activities, and streams.
+# Durable store: athlete + user settings, computed activities and their raw streams.
 sqlite = ["main"]
 
 [[services.v2.consumes]]
